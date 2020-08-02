@@ -5,8 +5,8 @@ import Fees from "./fees.js";
 import Transaction from "./transaction";
 import { LZMA as lzma } from "lzma/src/lzma-d-min";
 import BigNumber from "bignumber.js";
-import { PrivateKey, PublicKey, Aes, key } from "btsdex-ecc";
-import { setAddressPrefix } from "btsdex-ecc";
+import { PrivateKey, PublicKey, Aes, key } from "onsdex-ecc";
+import { setAddressPrefix } from "onsdex-ecc";
 import {
   connect,
   disconnect,
@@ -18,7 +18,7 @@ import {
   asset,
   orders,
   call
-} from "btsdex-api";
+} from "onsdex-api";
 
 const getExpireDate = () => {
   let d = new Date();
@@ -27,8 +27,8 @@ const getExpireDate = () => {
   return d.toISOString().slice(0, -5);
 };
 
-class BitShares {
-  static node = "wss://bitshares.openledger.info/ws";
+class Onest {
+  static node = "wss://dex.onest.io:9090";
   static autoreconnect = true;
   static logger = console;
 
@@ -50,12 +50,12 @@ class BitShares {
   static fees = Fees;
 
   static async connect(
-    node = BitShares.node,
-    autoreconnect = BitShares.autoreconnect
+    node = Onest.node,
+    autoreconnect = Onest.autoreconnect
   ) {
-    if (BitShares.connectPromise) return BitShares.connectPromise;
+    if (Onest.connectPromise) return Onest.connectPromise;
 
-    await (BitShares.connectPromise = BitShares.reconnect(node, autoreconnect));
+    await (Onest.connectPromise = Onest.reconnect(node, autoreconnect));
 
     Event.connectedNotify();
 
@@ -63,21 +63,21 @@ class BitShares {
   }
 
   static disconnect() {
-    BitShares.connectPromise = undefined;
-    BitShares.autoreconnect = false;
+    Onest.connectPromise = undefined;
+    Onest.autoreconnect = false;
     disconnect();
   }
 
   static async reconnect(node, autoreconnect) {
-    BitShares.chain = await connect(
+    Onest.chain = await connect(
       node,
       undefined,
       autoreconnect
     );
-    setAddressPrefix(BitShares.chain.addressPrefix);
-    BitShares.node = node;
+    setAddressPrefix(Onest.chain.addressPrefix);
+    Onest.node = node;
 
-    return BitShares.chain;
+    return Onest.chain;
   }
 
   static generateKeys(accountName, password, roles, prefix) {
@@ -104,16 +104,16 @@ class BitShares {
   static async login(
     accountName,
     password,
-    feeSymbol = BitShares.chain.coreAsset
+    feeSymbol = Onest.chain.coreAsset
   ) {
-    let acc = await BitShares.accounts[accountName],
+    let acc = await Onest.accounts[accountName],
       activeKey = PrivateKey.fromSeed(`${accountName}active${password}`),
       genPubKey = activeKey.toPublicKey().toString();
 
     if (genPubKey != acc.active.key_auths[0][0])
       throw new Error("The pair of login and password do not match!");
 
-    let account = new BitShares(accountName, activeKey.toWif(), feeSymbol);
+    let account = new Onest(accountName, activeKey.toWif(), feeSymbol);
 
     account.setMemoKey(
       (acc.options.memo_key === genPubKey
@@ -130,7 +130,7 @@ class BitShares {
     buffer,
     password,
     accountName,
-    feeSymbol = BitShares.chain.coreAsset
+    feeSymbol = Onest.chain.coreAsset
   ) {
     let backup_buffer = Aes.decrypt_with_checksum(
       PrivateKey.fromSeed(password),
@@ -147,7 +147,7 @@ class BitShares {
       ),
       aes_private = Aes.fromSeed(encryption_plainbuffer);
 
-    let acc = await BitShares.accounts[accountName];
+    let acc = await Onest.accounts[accountName];
     let accKey = buffer_data.private_keys.find(
       key => key.pubkey === acc.active.key_auths[0][0]
     );
@@ -158,7 +158,7 @@ class BitShares {
     let private_key_hex = aes_private.decryptHex(accKey.encrypted_key);
     let activeKey = PrivateKey.fromBuffer(new Buffer(private_key_hex, "hex"));
 
-    let account = new BitShares(accountName, activeKey.toWif(), feeSymbol);
+    let account = new Onest(accountName, activeKey.toWif(), feeSymbol);
 
     let memoKey;
     if (acc.options.memo_key === acc.active.key_auths[0][0])
@@ -195,8 +195,8 @@ class BitShares {
     bucketSeconds
   ) {
     return history.getMarketHistory(
-      (await BitShares.assets[quoteSymbol]).id,
-      (await BitShares.assets[baseSymbol]).id,
+      (await Onest.assets[quoteSymbol]).id,
+      (await Onest.assets[baseSymbol]).id,
       bucketSeconds,
       startDate.toISOString().slice(0, -5),
       stopDate.toISOString().slice(0, -5)
@@ -205,21 +205,21 @@ class BitShares {
 
   static async getLimitOrders(quoteSymbol, baseSymbol, limit = 50) {
     return database.getLimitOrders(
-      (await BitShares.assets[quoteSymbol]).id,
-      (await BitShares.assets[baseSymbol]).id,
+      (await Onest.assets[quoteSymbol]).id,
+      (await Onest.assets[baseSymbol]).id,
       limit > 100 ? 100 : limit
     );
   }
 
   static async getOrderBook(quoteSymbol, baseSymbol, limit = 50) {
     return database.getOrderBook(
-      (await BitShares.assets[quoteSymbol]).id,
-      (await BitShares.assets[baseSymbol]).id,
+      (await Onest.assets[quoteSymbol]).id,
+      (await Onest.assets[baseSymbol]).id,
       limit > 50 ? 50 : limit
     );
   }
 
-  constructor(accountName, activeKey, feeSymbol = BitShares.chain.coreAsset) {
+  constructor(accountName, activeKey, feeSymbol = Onest.chain.coreAsset) {
     if (activeKey) this.activeKey = PrivateKey.fromWif(activeKey);
 
     this.newTx = () => {
@@ -227,8 +227,8 @@ class BitShares {
     };
 
     this.initPromise = Promise.all([
-      BitShares.accounts[accountName],
-      BitShares.assets[feeSymbol]
+      Onest.accounts[accountName],
+      Onest.assets[feeSymbol]
     ]).then(params => {
       [this.account, this.feeAsset] = params;
     });
@@ -236,7 +236,7 @@ class BitShares {
 
   setFeeAsset = async feeSymbol => {
     await this.initPromise;
-    this.feeAsset = await BitShares.assets[feeSymbol];
+    this.feeAsset = await Onest.assets[feeSymbol];
   };
 
   setMemoKey = memoKey => {
@@ -257,11 +257,11 @@ class BitShares {
     await this.initPromise;
 
     let assets = await Promise.all(
-      args.map(async asset => (await BitShares.assets[asset]).id)
+      args.map(async asset => (await Onest.assets[asset]).id)
     );
     let balances = await database.getAccountBalances(this.account.id, assets);
     return Promise.all(
-      balances.map(balance => BitShares.assets.fromParam(balance))
+      balances.map(balance => Onest.assets.fromParam(balance))
     );
   };
 
@@ -277,8 +277,8 @@ class BitShares {
     if (buyAmount == 0 || sellAmount == 0) throw new Error("Amount equal 0!");
     await this.initPromise;
 
-    let buyAsset = await BitShares.assets[buySymbol],
-      sellAsset = await BitShares.assets[sellSymbol];
+    let buyAsset = await Onest.assets[buySymbol],
+      sellAsset = await Onest.assets[sellSymbol];
 
     let params = {
       fee: this.feeAsset.toParam(),
@@ -310,8 +310,8 @@ class BitShares {
   ) => {
     await this.initPromise;
 
-    let buyAsset = await BitShares.assets[buySymbol],
-      baseAsset = await BitShares.assets[baseSymbol],
+    let buyAsset = await Onest.assets[buySymbol],
+      baseAsset = await Onest.assets[baseSymbol],
       buyAmount = Math.floor(amount * 10 ** buyAsset.precision),
       sellAmount = Math.floor(
         BigNumber(amount)
@@ -349,8 +349,8 @@ class BitShares {
   ) => {
     await this.initPromise;
 
-    let sellAsset = await BitShares.assets[sellSymbol],
-      baseAsset = await BitShares.assets[baseSymbol],
+    let sellAsset = await Onest.assets[sellSymbol],
+      baseAsset = await Onest.assets[baseSymbol],
       sellAmount = Math.floor(amount * 10 ** sellAsset.precision),
       buyAmount = Math.floor(
         BigNumber(amount)
@@ -410,7 +410,7 @@ class BitShares {
     if (!this.memoKey) throw new Error("Not set memoKey!");
 
     let nonce = Date.now().toString(), //TransactionHelper.unique_nonce_uint64(),
-      to = (await BitShares.accounts[toName]).options.memo_key;
+      to = (await Onest.accounts[toName]).options.memo_key;
 
     return {
       from: this.memoKey.toPublicKey().toPublicKeyString(),
@@ -439,7 +439,7 @@ class BitShares {
   transferOperation = async (toName, assetSymbol, amount, memo) => {
     await this.initPromise;
 
-    let asset = await BitShares.assets[assetSymbol],
+    let asset = await Onest.assets[assetSymbol],
       intAmount = Math.floor(amount * 10 ** asset.precision);
 
     if (intAmount == 0) throw new Error("Amount equal 0!");
@@ -447,7 +447,7 @@ class BitShares {
     let params = {
       fee: this.feeAsset.toParam(),
       from: this.account.id,
-      to: (await BitShares.accounts[toName]).id,
+      to: (await Onest.accounts[toName]).id,
       amount: asset.toParam(intAmount),
       extensions: []
     };
@@ -466,7 +466,7 @@ class BitShares {
   assetIssueOperation = async (toName, assetSymbol, amount, memo) => {
     await this.initPromise;
 
-    let asset = await BitShares.assets[assetSymbol],
+    let asset = await Onest.assets[assetSymbol],
       intAmount = Math.floor(amount * 10 ** asset.precision);
 
     if (intAmount === 0) throw new Error("Amount equal 0!");
@@ -475,7 +475,7 @@ class BitShares {
       fee: this.feeAsset.toParam(),
       issuer: this.account.id,
       asset_to_issue: asset.toParam(intAmount),
-      issue_to_account: (await BitShares.accounts[toName]).id
+      issue_to_account: (await Onest.accounts[toName]).id
     };
 
     if (memo)
@@ -494,7 +494,7 @@ class BitShares {
 
     let payer = this.account.id;
 
-    let asset = await BitShares.assets[assetSymbol],
+    let asset = await Onest.assets[assetSymbol],
       intAmount = Math.floor(amount * 10 ** asset.precision);
 
     if (intAmount === 0) throw new Error("Amount equal 0!");
@@ -514,6 +514,6 @@ class BitShares {
   };
 }
 
-Event.init(BitShares.connect);
+Event.init(Onest.connect);
 
-export default BitShares;
+export default Onest;
