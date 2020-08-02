@@ -1,10 +1,10 @@
 {
-  "name": "btsdex",
+  "name": "onsdex",
   "version": "0.7.3",
-  "description": "Package for work with BitShares DEX",
+  "description": "Package for work with Onest DEX",
   "main": "lib",
   "bin": {
-    "btsdex": "./cli.js"
+    "onsdex": "./cli.js"
   },
   "scripts": {
     "dev": "nodemon --exec yarn build --watch src",
@@ -12,8 +12,8 @@
     "build": "babel src -d lib",
     "postbuild": "yarn browserify",
     "prebrowserify": "rm -rf build",
-    "browserify": "browserify lib/index.js --standalone BitShares -o build/btsdex.js -d",
-    "postbrowserify": "minify build/btsdex.js -o build/btsdex.min.js",
+    "browserify": "browserify lib/index.js --standalone BitShares -o build/onsdex.js -d",
+    "postbrowserify": "minify build/onsdex.js -o build/onsdex.min.js",
     "test": "mocha --timeout 10000"
   },
   "keywords": [
@@ -26,9 +26,9 @@
     "assert": "^1.5.0",
     "bigi": "^1.4.2",
     "bignumber.js": "^7.2.1",
-    "btsdex-api": "^0.7.2",
-    "btsdex-ecc": "^0.7.0",
-    "btsdex-serializer": "^0.7.1",
+    "onsdex-api": "^0.7.2",
+    "onsdex-ecc": "^0.7.0",
+    "onsdex-serializer": "^0.7.1",
     "bytebuffer": "^5.0.1",
     "lzma": "^2.3.2",
     "safe-buffer": "^5.2.0"
