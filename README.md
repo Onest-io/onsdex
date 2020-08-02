@@ -1,42 +1,42 @@
-# btsdex
+# onsdex
 
-Package for work with BitShares DEX.
-The main class in the package is `BitShares`. All you need is in it. There are a couple more helper classes, but they are not really designed for use outside of the `BitShares` class.
+Package for work with Onest DEX.
+The main class in the package is `Onest`. All you need is in it. There are a couple more helper classes, but they are not really designed for use outside of the `Onest` class.
 
-The `BitShares` class consists of static methods intended for working with the BitShares public blockchain API. Using the BitShares class, you can create an object whose methods provide access to the private part of the BitShares blockchain API.
+The `Onest` class consists of static methods intended for working with the Onest public blockchain API. Using the Onest class, you can create an object whose methods provide access to the private part of the Onest blockchain API.
 
 ## Setup
 
 ### If you use `npm`
 This library can be obtained through npm:
 ```
-$ npm install btsdex
+$ npm install onsdex
 ```
 If you want use [REPL-mode](#repl-mode):
 ```
-$ npm install -g btsdex
+$ npm install -g onsdex
 ```
 
 ### If you use `browser`
-Include [this](https://github.com/scientistnik/btsdex/releases) in html-file:
+Include [this](https://github.com/scientistnik/onsdex/releases) in html-file:
 ```
-<script src="btsdex.min.js"></script>
+<script src="onsdex.min.js"></script>
 ```
-After that in console aviable `BitShares` class.
+After that in console aviable `Onest` class.
 
 ## Usage
 
-__btsdex__ package contain class `BitShares`: 
+__onsdex__ package contain class `Onest`: 
 ```js
-const BitShares = require('btsdex')
+const Onest = require('onsdex')
 ```
-To connect to the BitShares network, you must call `connect` method:
+To connect to the Onest network, you must call `connect` method:
 ```js
-await BitShares.connect();
+await Onest.connect();
 ```
-By default, `BitShares` connected to `wss://bitshares.openledger.info/ws`. If you want set another node to connect:
+By default, `Onest` connected to `wss://bitshares.openledger.info/ws`. If you want set another node to connect:
 ```js
-await BitShares.connect("wss://bitshares.openledger.info/ws")
+await Onest.connect("wss://bitshares.openledger.info/ws")
 ```
 
 You can also connect to the network using the [event system](#event-system).
@@ -58,8 +58,8 @@ An example of methods from the Database API:
 
 To use them:
 ```js
-let obj = await BitShares.db.get_objects(["1.3.0"])
-let bts = await BitShares.db.list_assets("BTS", 100)
+let obj = await Onest.db.get_objects(["1.3.0"])
+let bts = await Onest.db.list_assets("BTS", 100)
 ```
 
 #### History API
@@ -72,25 +72,25 @@ Example of a method from the Account History API:
 
 To use it:
 ```js
-let ops = await BitShares.history.get_account_history("1.2.849826", "1.11.0", 10, "1.11.0")
+let ops = await Onest.history.get_account_history("1.2.849826", "1.11.0", 10, "1.11.0")
 ```
 
 ### Private API
 
-If you want to have access to account operations, you need to create a BitShares object. 
+If you want to have access to account operations, you need to create a Onest object. 
 
 If you know `privateActiveKey`:
 ```js
-let acc = new BitShares(<accountName>, <privateActiveKey>)
+let acc = new Onest(<accountName>, <privateActiveKey>)
 ```
 or if you know `password`:
 ```js
-let acc = BitShares.login(<accountName>, <password>)
+let acc = Onest.login(<accountName>, <password>)
 ```
 or if you have `bin`-file:
 ```js
 let buffer = fs.readFileSync(<bin-file path>);
-let acc = BitShares.loginFromFile(buffer, <wallet-password>, <accountName>)
+let acc = Onest.loginFromFile(buffer, <wallet-password>, <accountName>)
 ```
 
 While this object can not much: buy, sell, transfer, cancel order, asset reserve, asset issue and more.
@@ -114,10 +114,10 @@ await acc.assetIssue("scientistnik", "ABC", 10)
 await acc.assetReserve("ABC", 12)
 ```
 
-If you want to send tokens with memo and get `acc` from `constructor` (use `new BitShares()`), then before that you need to set a private memo-key:
+If you want to send tokens with memo and get `acc` from `constructor` (use `new Onest()`), then before that you need to set a private memo-key:
 ```js
 bot.setMemoKey(<privateMemoKey>)
-await bot.transfer("scientistnik", "USD", 10, "Thank you for BTSDEX!")
+await bot.transfer("scientistnik", "USD", 10, "Thank you for onsdex!")
 ```
 ### Transaction Builder
 
@@ -125,7 +125,7 @@ Each private transaction is considered accepted after being included in the bloc
 
 For create new transaction:
 ```js
-let tx = BitShares.newTx([<activePrivateKey>,...])
+let tx = Onest.newTx([<activePrivateKey>,...])
 ```
 or if you have account object `acc`:
 ```js
@@ -159,16 +159,16 @@ or
 await acc.broadcast(tx)
 ```
 
-The account has a lot more operations available than an instance of the bitshares class. If you know what fields the transaction you need consists of, you can use the transaction builder for that.
+The account has a lot more operations available than an instance of the Onest class. If you know what fields the transaction you need consists of, you can use the transaction builder for that.
 
 For example:
 ```js
-let BitShares = require("btsdex")
+let Onest = require("onsdex")
 
-BitShares.subscribe("connected", start)
+Onest.subscribe("connected", start)
 
 async function start() {
-  let acc = await BitShares.login(<accountName>, <password>)
+  let acc = await Onest.login(<accountName>, <password>)
 
   let params = {
     fee: {amount: 0, asset_id: "1.3.0"},
@@ -210,18 +210,18 @@ Very often we have to expect, when there will be some action in the blockchain, 
 
 #### Event types
 
-At the moment, __BTSDEX__ has three types of events:
+At the moment, __onsdex__ has three types of events:
 * `connected` - works once after connecting to the blockchain;
 * `block` - it works when a new block is created in the blockchain;
 * `account` - occurs when the specified account is changed (balance change).
 
 For example:
 ```js
-const BitShares = require("btsdex");
+const Onest = require("onsdex");
 
-BitShares.subscribe('connected', startAfterConnected);
-BitShares.subscribe('block', callEachBlock);
-BitShares.subscribe('account', changeAccount, 'trade-bot');
+Onest.subscribe('connected', startAfterConnected);
+Onest.subscribe('block', callEachBlock);
+Onest.subscribe('account', changeAccount, 'trade-bot');
 
 async function startAfterConnected() {/* is called once after connecting to the blockchain */}
 async function callEachBlock(obj) {/* is called with each block created */}
@@ -233,18 +233,18 @@ async function changeAccount(array) {/* is called when you change the 'trade-bot
 This event is triggered once, after connecting to the blockchain. Any number of functions can be subscribed to this event and all of them will be called after connection.
 
 ```js
-BitShares.subscribe('connected', firstFunction);
-BitShares.subscribe('connected', secondFunction);
+Onest.subscribe('connected', firstFunction);
+Onest.subscribe('connected', secondFunction);
 ```
 
-Another feature of the event is that when you first subscription call the method `BitShares.connect()`, i.e. will be an automatic connection. If by this time the connection to the blockchain has already been connected, then it will simply call the function.
+Another feature of the event is that when you first subscription call the method `Onest.connect()`, i.e. will be an automatic connection. If by this time the connection to the blockchain has already been connected, then it will simply call the function.
 
-Now it's not necessary to explicitly call `BitShares.connect()`, it's enough to subscribe to the `connected` event.
+Now it's not necessary to explicitly call `Onest.connect()`, it's enough to subscribe to the `connected` event.
 
 ```js
-const BitShares = require("btsdex");
+const Onest = require("onsdex");
 
-BitShares.subscribe('connected', start);
+Onest.subscribe('connected', start);
 
 async function start() {
   // something is happening here
@@ -256,9 +256,9 @@ async function start() {
 The `block` event is triggered when a new block is created in the blockchain. The first event subscription automatically creates a subscription to the `connected` event, and if this is the first subscription, it will cause a connection to the blockchain.
 
 ```js
-const BitShares = require("btsdex");
+const Onest = require("onsdex");
 
-BitShares.subscribe('block', newBlock);
+Onest.subscribe('block', newBlock);
 
 // need to wait ~ 10-15 seconds
 async function newBlock(obj) {
@@ -280,9 +280,9 @@ The first subscriber to `account` will call a `block` subscription, which in the
 
 Example code:
 ```js
-const BitShares = require("btsdex");
+const Onest = require("onsdex");
 
-BitShares.subscribe('account', changeAccount, 'scientistnik');
+Onest.subscribe('account', changeAccount, 'scientistnik');
 
 async function changeAccount (array) {
   console.log(array); // [{id: '1.11.37843675', block_num: 17171423, op: ...}, {...}]
@@ -292,37 +292,37 @@ In all the signed functions, an array of account history objects is transferred,
 
 ### REPL-mode
 
-If you install `btsdex`-package in global storage, you may start `btsdex` exec script:
+If you install `onsdex`-package in global storage, you may start `onsdex` exec script:
 ```js
-$ btsdex
+$ onsdex
 >|
 ```
-This command try autoconnect to mainnet BitShares. If you want to connect on testnet, try this:
+This command try autoconnect to mainnet Onest. If you want to connect on testnet, try this:
 ```js
-$ btsdex --testnet
+$ onsdex --testnet
 >|
 ```
 or use `--node` key:
 ```js
-$ btsdex --node wss://api.bts.blckchnd.com
+$ onsdex --node wss://api.bts.blckchnd.com
 >|
 ```
 
 It is nodejs REPL with several variables:
-- `BitShares`, main class `BitShares` package
-- `login`, function to create object of class `BitShares`
+- `Onest`, main class `Onest` package
+- `login`, function to create object of class `Onest`
 - `generateKeys`, to generateKeys from login and password
-- `accounts`, is analog `BitShares.accounts`
-- `assets`, is analog `BitShares.assets`
-- `db`, is analog `BitShares.db`
-- `history`, is analog `BitShares.hostory`
-- `network`, is analog `BitShares.network`
-- `fees`, is analog `BitShares.fees`
+- `accounts`, is analog `Onest.accounts`
+- `assets`, is analog `Onest.assets`
+- `db`, is analog `Onest.db`
+- `history`, is analog `Onest.hostory`
+- `network`, is analog `Onest.network`
+- `fees`, is analog `Onest.fees`
 
 #### For example
 
 ```js
-$ btsdex
+$ onsdex
 > assets["bts"].then(console.log)
 ```
 
@@ -330,7 +330,7 @@ $ btsdex
 
 If need call only one request, you may use `--account`, `--asset`, `--block`, `--object`, `--history` or `--transfer` keys in command-line:
 ```js
-$ btsdex --account <'name' or 'id' or 'last number in id'>
+$ onsdex --account <'name' or 'id' or 'last number in id'>
 {
   "id": "1.2.5992",
   "membership_expiration_date": "1970-01-01T00:00:00",
@@ -338,14 +338,14 @@ $ btsdex --account <'name' or 'id' or 'last number in id'>
   "referrer": "1.2.21",
   ...
 }
-$ btsdex --asset <'symbol' or 'id' or 'last number in id'>
+$ onsdex --asset <'symbol' or 'id' or 'last number in id'>
 {
   "id": "1.3.0",
   "symbol": "BTS",
   "precision": 5,
   ...
 }
-$ btsdex --block [<number>]
+$ onsdex --block [<number>]
 block_num: 4636380
 {
   "previous": "0046bedba1317d146dd6afbccff94412d76bf094",
@@ -353,7 +353,7 @@ block_num: 4636380
   "witness": "1.6.41",
   ...
 }
-$ btsdex --object 1.2.3
+$ onsdex --object 1.2.3
 {
   "id": "1.2.3",
   "membership_expiration_date": "1969-12-31T23:59:59",
@@ -361,7 +361,7 @@ $ btsdex --object 1.2.3
   "referrer": "1.2.3",
   ...
 }
-$ btsdex --history <account> [<limit>] [<start>] [<stop>]
+$ onsdex --history <account> [<limit>] [<start>] [<stop>]
 [
   {
     "id": "1.11.98179",
@@ -369,35 +369,35 @@ $ btsdex --history <account> [<limit>] [<start>] [<stop>]
       0,
   ...
 }]
-$ btsdex --transfer <from> <to> <amount> <asset> [--key]
+$ onsdex --transfer <from> <to> <amount> <asset> [--key]
 Transfered <amount> <asset> from '<from>' to '<to>' with memo '<memo>'
 ```
 
 ### Helper classes
 There are a couple more helper classes, such as __BitShares.assets__ and __BitShares.accounts__:
 ```js
-let usd = await BitShares.assets.usd;
-let btc = await BitShares.assets["OPEN.BTS"];
-let bts = await BitShares.assets["bts"];
+let usd = await Onest.assets.usd;
+let btc = await Onest.assets["OPEN.BTS"];
+let bts = await Onest.assets["bts"];
 
-let iam = await BitShares.accounts.scientistnik;
-let tradebot = await BitShares.accounts["trade-bot"];
+let iam = await Onest.accounts.scientistnik;
+let tradebot = await Onest.accounts["trade-bot"];
 ```
 The returned objects contain all the fields that blockchain returns when the given asset or account name is requested.
 
 ### Some examples:
 
 ```js
-const BitShares = require('btsdex')
+const Onest = require('onsdex')
 KEY = 'privateActiveKey'
 
-BitShares.subscribe('connected', startAfterConnected)
+Onest.subscribe('connected', startAfterConnected)
 
 async function startAfterConnected() {
-  let bot = new BitShares('trade-bot', KEY)
+  let bot = new Onest('trade-bot', KEY)
 
-  let iam = await BitShares.accounts['trade-bot'];
-  let orders = await BitShares.db.get_full_accounts([iam.id], false);
+  let iam = await Onest.accounts['trade-bot'];
+  let orders = await Onest.db.get_full_accounts([iam.id], false);
   
   orders = orders[0][1].limit_orders;
   let order = orders[0].sell_price;
@@ -405,11 +405,11 @@ async function startAfterConnected() {
 }
 ```
 ## Documentation
-For more information, look [wiki](https://scientistnik.github.io/btsdex) or in `docs`-folder.
+For more information, look [wiki](https://scientistnik.github.io/onsdex) or in `docs`-folder.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub. For communication, you can use the Telegram-channel [btdex](https://t.me/btsdex).
+Bug reports and pull requests are welcome on GitHub. For communication, you can use the Telegram-channel [btdex](https://t.me/onsdex).
 
 `master`-branch use for new release. For new feature use `dev` branch. All pull requests are accepted in `dev` branch.
 
