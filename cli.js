@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const repl = require("repl"),
-  BitShares = require("./lib"),
+  Onest = require("./lib"),
   readline = require("readline"),
   Writable = require("stream").Writable;
 
@@ -15,18 +15,18 @@ var mutableStdout = new Writable({
 
 function initializeContext(context) {
   connect().then(() => {
-    context.accounts = BitShares.accounts;
-    context.assets = BitShares.assets;
-    context.db = BitShares.db;
-    context.history = BitShares.history;
-    context.network = BitShares.network;
-    context.fees = BitShares.fees;
+    context.accounts = Onest.accounts;
+    context.assets = Onest.assets;
+    context.db = Onest.db;
+    context.history = Onest.history;
+    context.network = Onest.network;
+    context.fees = Onest.fees;
   });
 
-  context.BitShares = BitShares;
-  context.btsdex = BitShares;
-  context.login = BitShares.login.bind(BitShares);
-  context.generateKeys = BitShares.generateKeys;
+  context.Onest = Onest;
+  context.onsdex = Onest;
+  context.login = Onest.login.bind(Onest);
+  context.generateKeys = Onest.generateKeys;
 }
 
 function connect(autoreconnect = true) {
@@ -34,34 +34,34 @@ function connect(autoreconnect = true) {
     ? process.argv[process.argv.indexOf("--node") + 1]
     : process.argv.includes("--testnet")
     ? "wss://node.testnet.bitshares.eu"
-    : BitShares.node;
+    : Onest.node;
 
-  return BitShares.connect(node, autoreconnect).then(() =>
+  return Onest.connect(node, autoreconnect).then(() =>
     console.log(`Connected to API node: ${node}`)
   );
 }
 
 function showError(error) {
   console.log(`Error: ${error.message}`);
-  BitShares.disconnect();
+  Onest.disconnect();
 }
 
 if (process.argv.includes("--account")) {
   let index = process.argv.indexOf("--account");
 
   connect(false).then(() => {
-    BitShares.accounts[process.argv[index + 1]].then(result => {
+    Onest.accounts[process.argv[index + 1]].then(result => {
       console.log(JSON.stringify(result, null, 2));
-      BitShares.disconnect();
+      Onest.disconnect();
     }, showError);
   });
 } else if (process.argv.includes("--asset")) {
   let index = process.argv.indexOf("--asset");
 
   connect(false).then(() => {
-    BitShares.assets[process.argv[index + 1]].then(result => {
+    Onest.assets[process.argv[index + 1]].then(result => {
       console.log(JSON.stringify(result, null, 2));
-      BitShares.disconnect();
+      Onest.disconnect();
     }, showError);
   });
 } else if (process.argv.includes("--block")) {
@@ -70,20 +70,20 @@ if (process.argv.includes("--account")) {
   connect(false).then(async () => {
     let block_num =
       process.argv[index + 1] ||
-      (await BitShares.db.get_dynamic_global_properties()).head_block_number;
-    BitShares.db.get_block(block_num).then(result => {
+      (await Onest.db.get_dynamic_global_properties()).head_block_number;
+    Onest.db.get_block(block_num).then(result => {
       console.log(`block_num: ${block_num}`);
       console.log(JSON.stringify(result, null, 2));
-      BitShares.disconnect();
+      Onest.disconnect();
     }, showError);
   });
 } else if (process.argv.includes("--object")) {
   let index = process.argv.indexOf("--object");
 
   connect(false).then(() => {
-    BitShares.db.get_objects([process.argv[index + 1]]).then(result => {
+    Onest.db.get_objects([process.argv[index + 1]]).then(result => {
       console.log(JSON.stringify(result[0], null, 2));
-      BitShares.disconnect();
+      Onest.disconnect();
     }, showError);
   });
 } else if (process.argv.includes("--history")) {
@@ -95,8 +95,8 @@ if (process.argv.includes("--account")) {
 
   connect(false).then(async () => {
     try {
-      let account = await BitShares.accounts[account_name];
-      let history = await BitShares.history.get_account_history(
+      let account = await Onest.accounts[account_name];
+      let history = await Onest.history.get_account_history(
         account.id,
         /^1.11.\d+$/.test(start) ? start : "1.11.0",
         isNaN(limit) ? 100 : limit,
@@ -107,7 +107,7 @@ if (process.argv.includes("--account")) {
       console.log(`Error: ${error.message}`);
     }
 
-    BitShares.disconnect();
+    Onest.disconnect();
   }, showError);
 } else if (process.argv.includes("--transfer")) {
   let index = process.argv.indexOf("--transfer"),
@@ -132,8 +132,8 @@ if (process.argv.includes("--account")) {
 
         try {
           let account = isKey
-            ? new BitShares(from, answer)
-            : await BitShares.login(from, answer);
+            ? new Onest(from, answer)
+            : await Onest.login(from, answer);
 
           rl.question("Write memo: ", async memo => {
             try {
@@ -146,12 +146,12 @@ if (process.argv.includes("--account")) {
             }
 
             rl.close();
-            BitShares.disconnect();
+            Onest.disconnect();
           });
         } catch (error) {
           console.log(`Error: ${error.message}`);
           rl.close();
-          BitShares.disconnect();
+          Onest.disconnect();
         }
       }
     );
