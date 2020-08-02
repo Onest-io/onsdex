@@ -1,7 +1,7 @@
 import assert from "assert";
-import { Signature, PublicKey, hash } from "btsdex-ecc";
-import { getConfig, database, network } from "btsdex-api";
-import { ops, ChainTypes } from "btsdex-serializer";
+import { Signature, PublicKey, hash } from "onsdex-ecc";
+import { getConfig, database, network } from "onsdex-api";
+import { ops, ChainTypes } from "onsdex-serializer";
 import { Buffer } from "safe-buffer";
 
 var head_block_time_string, committee_min_review;
@@ -740,7 +740,7 @@ function _broadcast(was_broadcast_callback) {
           new Error(
             message +
               "\n" +
-              "bitshares-crypto " +
+              "onest-crypto " +
               " digest " +
               hash.sha256(this.tr_buffer).toString("hex") +
               " transaction " +
