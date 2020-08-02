@@ -1,11 +1,11 @@
 const defaultConfig = {
-  name: "BitShares",
-  coreAsset: "BTS",
-  addressPrefix: "BTS",
+  name: "Onest",
+  coreAsset: "ONS",
+  addressPrefix: "ONS",
   expireInSecs: 15,
   expireInSecsProposal: 24 * 60 * 60,
   reviewInSecsCommittee: 24 * 60 * 60,
-  chainId: "4018d7844c78f6a6c41c6a552b898022310fc5dec06da467ee7905a8dad512c8"
+  chainId: "f8d9da89c97d407e5b14f1d731700725002ba12d2f93cdb703512bf79158ea76"
 };
 
 let networks = [
