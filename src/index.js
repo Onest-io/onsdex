@@ -1,1 +1,1 @@
-module.exports = require("./bitshares").default;
+module.exports = require("./onest").default;
